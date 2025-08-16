@@ -1,0 +1,360 @@
+# YOLOv11 Small Object Detection Configuration
+# Performance Analysis of YOLOv11 Architecture Variants for Small Object Detection
+# IEEE Access Research Implementation
+
+# ==========================================
+# MODEL CONFIGURATIONS
+# ==========================================
+
+models:
+  yolov11n:
+    name: "YOLOv11n"
+    description: "Nano version - fastest inference"
+    parameters: "2.6M"
+    flops: "6.5G"
+    target_fps: 142.5
+    optimal_batch_size: 32
+    memory_efficient: true
+    use_case: "Real-time applications, edge deployment"
+    
+  yolov11s:
+    name: "YOLOv11s"
+    description: "Small version - balanced speed and accuracy"
+    parameters: "9.4M"
+    flops: "21.5G"
+    target_fps: 98.3
+    optimal_batch_size: 24
+    memory_efficient: true
+    use_case: "Mobile applications, embedded systems"
+    
+  yolov11m:
+    name: "YOLOv11m"
+    description: "Medium version - optimal trade-off"
+    parameters: "20.1M"
+    flops: "68.2G"
+    target_fps: 67.4
+    optimal_batch_size: 16
+    memory_efficient: false
+    use_case: "General purpose detection, balanced requirements"
+    
+  yolov11l:
+    name: "YOLOv11l"
+    description: "Large version - high accuracy"
+    parameters: "25.3M"
+    flops: "86.9G"
+    target_fps: 45.1
+    optimal_batch_size: 12
+    memory_efficient: false
+    use_case: "High accuracy requirements, cloud deployment"
+    
+  yolov11x:
+    name: "YOLOv11x"
+    description: "Extra large version - maximum accuracy"
+    parameters: "56.9M"
+    flops: "194.9G"
+    target_fps: 28.7
+    optimal_batch_size: 8
+    memory_efficient: false
+    use_case: "Research, maximum accuracy applications"
+
+# ==========================================
+# DATASET CONFIGURATIONS
+# ==========================================
+
+datasets:
+  coco:
+    name: "COCO 2017"
+    path: "data/coco"
+    train: "data/coco/train2017.txt"
+    val: "data/coco/val2017.txt"
+    test: "data/coco/test2017.txt"
+    nc: 80  # number of classes
+    names: ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
+            'fire hydrant', 'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
+            'elephant', 'bear', 'zebra', 'giraffe', 'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee',
+            'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard',
+            'tennis racket', 'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl', 'banana', 'apple',
+            'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch',
+            'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone',
+            'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock', 'vase', 'scissors', 'teddy bear',
+            'hair drier', 'toothbrush']
+    small_object_threshold: 32  # pixels (32x32)
+    description: "Large-scale object detection dataset"
+    
+  pascal_voc:
+    name: "Pascal VOC 2012"
+    path: "data/pascal_voc"
+    train: "data/pascal_voc/train.txt"
+    val: "data/pascal_voc/val.txt"
+    test: "data/pascal_voc/test.txt"
+    nc: 20  # number of classes
+    names: ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair', 'cow',
+            'diningtable', 'dog', 'horse', 'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']
+    small_object_threshold: 32
+    description: "Classic object detection benchmark dataset"
+    
+  dota:
+    name: "DOTA v1.0"
+    path: "data/dota"
+    train: "data/dota/train.txt"
+    val: "data/dota/val.txt"
+    test: "data/dota/test.txt"
+    nc: 15  # number of classes
+    names: ['plane', 'baseball-diamond', 'bridge', 'ground-track-field', 'small-vehicle', 'large-vehicle', 'ship',
+            'tennis-court', 'basketball-court', 'storage-tank', 'soccer-ball-field', 'roundabout', 'harbor',
+            'swimming-pool', 'helicopter']
+    small_object_threshold: 32
+    description: "Aerial image dataset for small object detection"
+
+# ==========================================
+# TRAINING CONFIGURATIONS
+# ==========================================
+
+training:
+  # Basic parameters
+  epochs: 100
+  patience: 10
+  save_period: 10
+  cache: true
+  workers: 8
+  
+  # Image settings
+  imgsz: 640
+  
+  # Optimization
+  optimizer: "AdamW"
+  lr0: 0.001
+  lrf: 0.01
+  momentum: 0.937
+  weight_decay: 0.0005
+  warmup_epochs: 3
+  warmup_momentum: 0.8
+  warmup_bias_lr: 0.1
+  
+  # Loss weights
+  box: 7.5
+  cls: 0.5
+  dfl: 1.5
+  pose: 12.0
+  kobj: 2.0
+  label_smoothing: 0.0
+  
+  # Advanced settings
+  nbs: 64
+  overlap_mask: true
+  mask_ratio: 4
+  dropout: 0.0
+  
+  # Small object detection optimizations
+  small_object_augmentation:
+    mosaic: 0.5          # Reduced for small objects
+    mixup: 0.1           # Light augmentation
+    copy_paste: 0.1      # Copy-paste augmentation
+    degrees: 5.0         # Reduced rotation
+    translate: 0.1       # Reduced translation
+    scale: 0.2           # Reduced scaling
+    fliplr: 0.5          # Horizontal flip
+    flipud: 0.1          # Vertical flip
+    hsv_h: 0.015         # Hue augmentation
+    hsv_s: 0.7           # Saturation augmentation
+    hsv_v: 0.4           # Value augmentation
+
+# ==========================================
+# EVALUATION CONFIGURATIONS
+# ==========================================
+
+evaluation:
+  # Detection thresholds
+  conf_threshold: 0.001
+  iou_threshold: 0.6
+  max_det: 300
+  
+  # Evaluation metrics
+  metrics:
+    - "mAP@0.5"
+    - "mAP@0.5:0.95"
+    - "mAP@0.75"
+    - "mAP_small"
+    - "mAP_medium"
+    - "mAP_large"
+    - "precision"
+    - "recall"
+    - "F1_score"
+  
+  # Small object analysis
+  small_object_analysis:
+    enabled: true
+    size_threshold: 32     # pixels
+    area_threshold: 1024   # pixels squared (32x32)
+    
+  # Computational efficiency
+  efficiency_metrics:
+    - "fps"
+    - "inference_time"
+    - "gpu_memory"
+    - "cpu_memory"
+    - "energy_consumption"
+    - "flops"
+    
+  # Statistical analysis
+  statistical_analysis:
+    confidence_level: 0.95
+    significance_level: 0.05
+    bootstrap_samples: 1000
+    
+# ==========================================
+# HARDWARE CONFIGURATIONS
+# ==========================================
+
+hardware:
+  # GPU settings
+  gpu:
+    enabled: true
+    mixed_precision: true
+    deterministic: false
+    benchmark: true
+    
+  # Memory management
+  memory:
+    max_memory_fraction: 0.9
+    memory_growth: true
+    cache_images: true
+    
+  # CPU settings
+  cpu:
+    threads: 8
+    use_multiprocessing: true
+
+# ==========================================
+# LOGGING AND MONITORING
+# ==========================================
+
+logging:
+  # Basic logging
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # File logging
+  log_to_file: true
+  log_file: "logs/training.log"
+  
+  # Visualization
+  plots: true
+  save_plots: true
+  
+  # Weights & Biases
+  wandb:
+    enabled: false
+    project: "yolov11-small-object-detection"
+    entity: "computer-vision-lab"
+    tags: ["yolov11", "small-objects", "ieee-access"]
+    
+  # TensorBoard
+  tensorboard:
+    enabled: true
+    log_dir: "runs/tensorboard"
+
+# ==========================================
+# PATHS AND DIRECTORIES
+# ==========================================
+
+paths:
+  # Data directories
+  data_root: "data"
+  datasets_dir: "data/datasets"
+  
+  # Model directories
+  models_dir: "models"
+  pretrained_dir: "models/pretrained"
+  checkpoints_dir: "models/checkpoints"
+  
+  # Results directories
+  results_dir: "results"
+  figures_dir: "results/figures"
+  metrics_dir: "results/metrics"
+  logs_dir: "logs"
+  
+  # Cache directories
+  cache_dir: "cache"
+  temp_dir: "temp"
+
+# ==========================================
+# RESEARCH SPECIFIC SETTINGS
+# ==========================================
+
+research:
+  # IEEE Access paper settings
+  paper_title: "Performance Analysis of YOLOv11 Architecture Variants for Small Object Detection"
+  authors: ["Seung Jin Kim", "Min Jae Lee", "Hyun Woo Park"]
+  institution: "Computer Vision & AI Lab"
+  
+  # Experimental setup
+  random_seed: 42
+  reproducible: true
+  
+  # Benchmark results (from paper)
+  benchmark_results:
+    yolov11n:
+      mAP50: 84.3
+      mAP50_95: 67.2
+      fps: 142.5
+      memory_gb: 1.8
+      energy_watts: 25.3
+      
+    yolov11s:
+      mAP50: 86.7
+      mAP50_95: 70.1
+      fps: 98.3
+      memory_gb: 3.2
+      energy_watts: 42.7
+      
+    yolov11m:
+      mAP50: 88.9
+      mAP50_95: 72.8
+      fps: 67.4
+      memory_gb: 5.7
+      energy_watts: 68.9
+      
+    yolov11l:
+      mAP50: 90.2
+      mAP50_95: 74.5
+      fps: 45.1
+      memory_gb: 8.9
+      energy_watts: 95.2
+      
+    yolov11x:
+      mAP50: 91.8
+      mAP50_95: 76.3
+      fps: 28.7
+      memory_gb: 12.4
+      energy_watts: 138.5
+
+# ==========================================
+# VALIDATION AND TESTING
+# ==========================================
+
+validation:
+  # Validation frequency
+  val_frequency: 5  # epochs
+  
+  # Early stopping
+  early_stopping:
+    enabled: true
+    patience: 10
+    min_delta: 0.001
+    
+  # Model selection
+  model_selection:
+    metric: "mAP@0.5:0.95"
+    mode: "max"
+    
+testing:
+  # Test configurations
+  test_time_augmentation: false
+  multi_scale_testing: false
+  
+  # Ensemble settings
+  ensemble:
+    enabled: false
+    models: []
+    weights: "equal"
